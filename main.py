@@ -1,46 +1,49 @@
-from environment.maze import Maze
-from environment.robot import Action, Robot
+import time
 
-
-KEYBOARD_ACTIONS = {
-    "w": Action.UP,
-    "d": Action.RIGHT,
-    "s": Action.DOWN,
-    "a": Action.LEFT,
-}
+from agents.fsm_agent import FSMAgent, FSMState
+from environment.environment import MazeEnvironment
 
 
 def main() -> None:
-    maze = Maze("mazes/easy.txt")
-    robot = Robot(maze)
+    env = MazeEnvironment("mazes/easy.txt")
+    agent = FSMAgent(env)
 
-    print("Move with W, A, S, and D.")
-    print("Enter Q to quit.")
+    agent.reset()
 
-    while True:
-        print()
-        maze.display(robot.position)
+    max_steps = 500
 
-        if robot.reached_goal():
-            print(f"\nGoal reached in {robot.steps} steps!")
+    for _ in range(max_steps):
+        print("\n" * 2)
+        env.render()
+
+        if env.robot.reached_goal():
+            agent.state = FSMState.FINISHED
+
+            print("\nGoal reached!")
+            print(f"Steps: {env.robot.steps}")
+            print(f"Visited cells: {len(agent.visited)}")
             break
 
-        command = input("\nMove: ").strip().lower()
-
-        if command == "q":
-            print("Simulation ended.")
-            break
-
-        action = KEYBOARD_ACTIONS.get(command)
+        action = agent.choose_action()
 
         if action is None:
-            print("Invalid command. Use W, A, S, D, or Q.")
-            continue
+            print("\nThe FSM could not find the goal.")
+            break
 
-        moved = robot.move(action)
+        _, _, done = env.step(action)
 
-        if not moved:
-            print("The robot cannot move through a wall.")
+        time.sleep(0.15)
+
+        if done:
+            print("\n" * 2)
+            env.render()
+
+            print("\nGoal reached!")
+            print(f"Steps: {env.robot.steps}")
+            print(f"Visited cells: {len(agent.visited)}")
+            break
+    else:
+        print("\nMaximum step count reached.")
 
 
 if __name__ == "__main__":
