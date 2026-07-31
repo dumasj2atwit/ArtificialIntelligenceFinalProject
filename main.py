@@ -14,14 +14,19 @@ def main() -> None:
 
     for _ in range(max_steps):
         print("\n" * 2)
+        print(f"Current State: {agent.state.name}")
+        print(f"Current Position: {env.robot.position}")
         env.render()
 
         if env.robot.reached_goal():
             agent.state = FSMState.FINISHED
 
-            print("\nGoal reached!")
-            print(f"Steps: {env.robot.steps}")
-            print(f"Visited cells: {len(agent.visited)}")
+            print("\n===== FSM RESULTS =====")
+            print("Goal Reached: Yes")
+            print(f"Steps Taken: {env.robot.steps}")
+            print(f"Visited Cells: {len(agent.visited)}")
+            print(f"Dead Ends: {agent.dead_ends}")
+            print(f"Backtrack Steps: {agent.backtrack_steps}")
             break
 
         action = agent.choose_action()
@@ -36,11 +41,16 @@ def main() -> None:
 
         if done:
             print("\n" * 2)
+            print(f"Current State: {agent.state.name}")
+            print(f"Current Position: {env.robot.position}")
             env.render()
 
-            print("\nGoal reached!")
-            print(f"Steps: {env.robot.steps}")
-            print(f"Visited cells: {len(agent.visited)}")
+            print("\n===== FSM RESULTS =====")
+            print("Goal Reached: Yes")
+            print(f"Steps Taken: {env.robot.steps}")
+            print(f"Visited Cells: {len(agent.visited)}")
+            print(f"Dead Ends: {agent.dead_ends}")
+            print(f"Backtrack Steps: {agent.backtrack_steps}")
             break
     else:
         print("\nMaximum step count reached.")

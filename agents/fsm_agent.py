@@ -13,16 +13,27 @@ class FSMState(Enum):
 class FSMAgent:
     def __init__(self, environment: MazeEnvironment):
         self.environment = environment
+
         self.state = FSMState.EXPLORE
+        self.previous_state = self.state
+
         self.path_stack: list[tuple[int, int]] = []
         self.visited: set[tuple[int, int]] = set()
+
+        self.dead_ends = 0
+        self.backtrack_steps = 0
 
     def reset(self) -> None:
         start_position = self.environment.reset()
 
         self.state = FSMState.EXPLORE
+        self.previous_state = self.state
+
         self.path_stack = [start_position]
         self.visited = {start_position}
+
+        self.dead_ends = 0
+        self.backtrack_steps = 0
 
     def choose_action(self) -> Action | None:
         if self.state == FSMState.FINISHED:
@@ -37,11 +48,18 @@ class FSMAgent:
                 self.environment.maze.is_valid_move(next_position)
                 and next_position not in self.visited
             ):
+                self.previous_state = self.state
                 self.state = FSMState.EXPLORE
+
                 self.visited.add(next_position)
                 self.path_stack.append(next_position)
+
                 return action
 
+        if self.state != FSMState.BACKTRACK:
+            self.dead_ends += 1
+
+        self.previous_state = self.state
         self.state = FSMState.BACKTRACK
 
         if len(self.path_stack) <= 1:
@@ -49,6 +67,8 @@ class FSMAgent:
 
         self.path_stack.pop()
         previous_position = self.path_stack[-1]
+
+        self.backtrack_steps += 1
 
         return self._get_action_to_position(
             current_position,
@@ -72,4 +92,6 @@ class FSMAgent:
             if action.value == difference:
                 return action
 
-        raise ValueError("Target position is not adjacent to current position.")
+        raise ValueError(
+            "Target position is not adjacent to current position."
+        )
