@@ -5,7 +5,7 @@ from environment.environment import MazeEnvironment
 
 
 def main() -> None:
-    env = MazeEnvironment("mazes/easy.txt")
+    env = MazeEnvironment("mazes/hard.txt")
     agent = FSMAgent(env)
 
     agent.reset()
