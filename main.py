@@ -17,6 +17,8 @@ def main() -> None:
         print(f"Current State: {agent.state.name}")
         print(f"Current Position: {env.robot.position}")
         env.render()
+        print(f"Discovered: {env.discovered}")
+        print(f"Goal discovered: {env.goal_discovered()}")
 
         if env.robot.reached_goal():
             agent.state = FSMState.FINISHED

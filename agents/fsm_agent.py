@@ -2,12 +2,14 @@ from enum import Enum
 
 from environment.environment import MazeEnvironment
 from environment.robot import Action
+from agents.astar import astar
 
 
 class FSMState(Enum):
     EXPLORE = 1
     BACKTRACK = 2
-    FINISHED = 3
+    FOLLOW_PATH = 3
+    FINISHED = 4
 
 
 class FSMAgent:
@@ -23,6 +25,9 @@ class FSMAgent:
         self.dead_ends = 0
         self.backtrack_steps = 0
 
+        self.astar_path: list[tuple[int, int]] = []
+        self.astar_index = 0
+
     def reset(self) -> None:
         start_position = self.environment.reset()
 
@@ -35,12 +40,45 @@ class FSMAgent:
         self.dead_ends = 0
         self.backtrack_steps = 0
 
+        self.astar_path = []
+        self.astar_index = 0
+
     def choose_action(self) -> Action | None:
         if self.state == FSMState.FINISHED:
             return None
 
         current_position = self.environment.robot.position
+        # If we are following an A* path, continue along it.
+        if self.state == FSMState.FOLLOW_PATH:
+            if self.astar_index >= len(self.astar_path):
+                self.state = FSMState.FINISHED
+                return None
 
+            next_position = self.astar_path[self.astar_index]
+            self.astar_index += 1
+
+            return self._get_action_to_position(
+                current_position,
+                next_position,
+            )
+        
+        # Once the goal becomes visible, switch from exploration to A*.
+        if self.environment.goal_discovered():
+            path = astar(
+                self.environment.maze,
+                current_position,
+                self.environment.maze.goal_position,
+            )
+
+            if path is not None:
+                # path[0] is our current position, so skip it.
+                self.astar_path = path[1:]
+                self.astar_index = 0
+
+                self.previous_state = self.state
+                self.state = FSMState.FOLLOW_PATH
+
+                return self.choose_action()
         for action in Action:
             next_position = self.environment.robot.get_next_position(action)
 
