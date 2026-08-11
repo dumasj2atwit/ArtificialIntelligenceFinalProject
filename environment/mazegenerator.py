@@ -82,7 +82,10 @@ def save_maze(
             file.write("".join(row) + "\n")
 
 
-def generate_difficulty_maze(difficulty: str) -> None:
+def generate_experiment_mazes(
+    difficulty: str,
+    count: int = 5,
+) -> None:
     sizes = {
         "easy": (11, 11),
         "medium": (21, 21),
@@ -96,17 +99,22 @@ def generate_difficulty_maze(difficulty: str) -> None:
 
     rows, cols = sizes[difficulty]
 
-    maze = generate_maze(rows, cols)
+    for index in range(1, count + 1):
+        maze = generate_maze(rows, cols)
 
-    save_maze(
-        maze,
-        f"mazes/{difficulty}.txt",
-    )
+        filename = (
+            f"mazes/experiments/"
+            f"{difficulty}_{index:02d}.txt"
+        )
+
+        save_maze(maze, filename)
+
+        print(f"Generated {filename}")
 
 
 if __name__ == "__main__":
-    generate_difficulty_maze("easy")
-    generate_difficulty_maze("medium")
-    generate_difficulty_maze("hard")
+    generate_experiment_mazes("easy", 5)
+    generate_experiment_mazes("medium", 5)
+    generate_experiment_mazes("hard", 5)
 
-    print("Generated easy, medium, and hard mazes.")
+    print("\nGenerated all experiment mazes.")
