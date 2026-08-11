@@ -6,7 +6,7 @@ from visualization.render import PyGameRenderer
 
 
 def main() -> None:
-    env = MazeEnvironment("mazes/medium.txt")
+    env = MazeEnvironment("mazes/hard.txt")
     agent = FSMAgent(env)
     renderer = PyGameRenderer(env.maze, env.robot)
 

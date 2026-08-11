@@ -72,7 +72,7 @@ def run_learned_agent(
 
 def main():
 
-    maze_file = "mazes/easy.txt"
+    maze_file = "mazes/hard.txt"
 
     print("Training Q-learning agent...")
 
