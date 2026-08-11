@@ -58,6 +58,14 @@ def train_q_learning(
         steps.append(episode_steps)
         successes.append(done)
 
+        if (episode + 1) % 50 == 0:
+            print(
+            f"Episode {episode + 1}: "
+            f"Steps={episode_steps}, "
+            f"Reward={total_reward}, "
+            f"Success={done}"
+        )
+
         # Decay exploration
         agent.exploration_rate = max(
             0.05,
