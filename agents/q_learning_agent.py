@@ -23,20 +23,7 @@ class QLearningAgent:
         self.q_values = defaultdict(float)
 
     def get_state(self) -> tuple:
-        position = self.enviorment.robot.position
-
-        local_obs = []
-
-        for action in Action:
-            next_position = self.enviorment.robot.get_next_position(action)
-
-            is_wall = not self.enviorment.maze.is_valid_move(next_position)
-
-            is_visted = next_position in self.enviorment.robot.visited_positions
-
-            local_obs.append((is_wall, is_visted))
-
-        return (position, tuple(local_obs))
+        return (self.enviorment.robot.position,)
 
     def get_Q_value(self, state: tuple, action: Action) -> float:
         return self.q_values[(state, action)]

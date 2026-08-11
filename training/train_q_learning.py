@@ -29,8 +29,8 @@ def train_q_learning(
         total_reward = 0
         episode_steps = 0
         done = False
-
-        while not done and episode_steps < 500:
+        #and episode_steps < 1000
+        while not done:
 
             action = agent.get_action(state)
 
