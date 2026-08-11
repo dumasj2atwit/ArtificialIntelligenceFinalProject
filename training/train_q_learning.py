@@ -1,19 +1,28 @@
 from agents.q_learning_agent import QLearningAgent
 from environment.environment import MazeEnvironment
 
-def train_q_learning(maze_file: str, episodes: int = 1000):
 
-    enviorment= MazeEnvironment(maze_file)
+def train_q_learning(
+    maze_file: str,
+    episodes: int = 1000,
+):
 
-    agent = QLearningAgent(enviorment=enviorment, learning_rate=0.2,discount_factor=0.9,exploration_rate=0.1)
+    environment = MazeEnvironment(maze_file)
+
+    agent = QLearningAgent(
+        enviorment=environment,
+        learning_rate=0.2,
+        discount_factor=0.9,
+        exploration_rate=1.0,
+    )
 
     rewards = []
     steps = []
-    successes  = []
+    successes = []
 
     for episode in range(episodes):
 
-        enviorment.reset()
+        environment.reset()
 
         state = agent.get_state()
 
@@ -21,17 +30,24 @@ def train_q_learning(maze_file: str, episodes: int = 1000):
         episode_steps = 0
         done = False
 
-        while not done:
+        while not done and episode_steps < 500:
 
             action = agent.get_action(state)
 
-            next_pos, reward, done = (
-                enviorment.step(action)
-            )
+            if action is None:
+                break
+
+            _, reward, done = environment.step(action)
 
             next_state = agent.get_state()
 
-            agent.update( state, action, next_state, reward, done,)
+            agent.update(
+                state,
+                action,
+                next_state,
+                reward,
+                done,
+            )
 
             state = next_state
 
@@ -42,6 +58,10 @@ def train_q_learning(maze_file: str, episodes: int = 1000):
         steps.append(episode_steps)
         successes.append(done)
 
-    return agent, rewards, steps, successes 
+        # Decay exploration
+        agent.exploration_rate = max(
+            0.05,
+            agent.exploration_rate * 0.995,
+        )
 
-
+    return agent, rewards, steps, successes
