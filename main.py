@@ -27,7 +27,6 @@ def main() -> None:
             print("\n" * 2)
             print(f"Current State: {agent.state.name}")
             print(f"Current Position: {env.robot.position}")
-            print(f"Discovered: {env.discovered}")
             print(f"Goal discovered: {env.goal_discovered()}")
 
             if env.robot.reached_goal():
