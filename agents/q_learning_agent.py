@@ -45,29 +45,73 @@ class QLearningAgent:
         self,
         state: tuple,
     ) -> float:
-        values = [self.get_Q_value(state, action) for action in Action]
+
+        position = state[0]
+
+        legal_actions = self.get_legal_actions(position)
+
+        if not legal_actions:
+            return 0.0
+
+        values = [self.get_Q_value(state, action) for action in legal_actions]
 
         return max(values)
+
+    def get_legal_actions(
+        self,
+        position: tuple[int, int],
+    ) -> list[Action]:
+
+        legal_actions = []
+
+        for action in Action:
+            row_change, column_change = action.value
+
+            next_position = (
+                position[0] + row_change,
+                position[1] + column_change,
+            )
+
+            if self.enviorment.maze.is_valid_move(next_position):
+                legal_actions.append(action)
+
+        return legal_actions
 
     def get_action(
         self,
         state: tuple,
-    ) -> Action:
-        best_value = self.compute_value(state)
+    ) -> Action | None:
 
-        best_action = [
-            action for action in Action if self.get_Q_value(state, action) == best_value
+        position = state[0]
+
+        legal_actions = self.get_legal_actions(position)
+
+        if not legal_actions:
+            return None
+
+        if random.random() < self.exploration_rate:
+            action = random.choice(legal_actions)
+            return action
+
+        q_values = {
+            action: self.get_Q_value(state, action)
+            for action in legal_actions
+        }
+
+        best_value = max(q_values.values())
+
+        best_actions = [
+            action
+            for action in legal_actions
+            if q_values[action] == best_value
         ]
 
-        return random.choice(best_action)
+        action = random.choice(best_actions)
+
+        return action
 
     def update(
-        self, 
-        state: tuple, 
-        action: Action, 
-        next_state: tuple, 
-        reward: float, 
-        done: bool
+        self, state: tuple, action: Action, next_state: tuple, reward: float, done: bool
     ):
         current_q = self.get_Q_value(state, action)
 
@@ -76,12 +120,8 @@ class QLearningAgent:
         else:
             future_value = self.compute_value(next_state)
 
-        target = (
-            reward + self.discount_factor * future_value
-        )
+        target = reward + self.discount_factor * future_value
 
         difference = target - current_q
 
-        self.q_values[(state, action)] = (
-            current_q + self.learning_rate * difference
-        )
+        self.q_values[(state, action)] = current_q + self.learning_rate * difference
