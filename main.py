@@ -2,11 +2,13 @@ import time
 
 from agents.fsm_agent import FSMAgent, FSMState
 from environment.environment import MazeEnvironment
+from visualization.render import PyGameRenderer
 
 
 def main() -> None:
-    env = MazeEnvironment("mazes/hard.txt")
+    env = MazeEnvironment("mazes/medium.txt")
     agent = FSMAgent(env)
+    renderer = PyGameRenderer(env.maze, env.robot)
 
     agent.reset()
 
@@ -17,13 +19,15 @@ def main() -> None:
     try:
         for _ in range(max_steps):
 
-            # Keep the PyGame window responsive
-            # if not renderer.process_events():
-            #     break
+            # Allow the Pygame window to close normally.
+            if not renderer.process_events():
+                return
 
-            # renderer.render(env.robot)
+            # Draw current robot position.
+            renderer.render(env.robot)
 
             print("\n" * 2)
+            print(f"Cells Discovered: {len(env.discovered)}")
             print(f"Current State: {agent.state.name}")
             print(f"Current Position: {env.robot.position}")
             print(f"Goal discovered: {env.goal_discovered()}")
@@ -39,7 +43,6 @@ def main() -> None:
                 print(f"Backtrack Steps: {agent.backtrack_steps}")
 
                 # renderer.render(env.robot)
-                time.sleep(2)
                 break
 
             action = agent.choose_action()
@@ -53,7 +56,9 @@ def main() -> None:
             time.sleep(0.15)
 
             if done:
-                # renderer.render(env.robot)
+                agent.state = FSMState.FINISHED
+
+                renderer.render(env.robot)
 
                 print("\n===== FSM RESULTS =====")
                 print("Goal Reached: Yes")
@@ -61,13 +66,13 @@ def main() -> None:
                 print(f"Visited Cells: {len(agent.visited)}")
                 print(f"Dead Ends: {agent.dead_ends}")
                 print(f"Backtrack Steps: {agent.backtrack_steps}")
-
-                time.sleep(2)
                 break
 
         else:
             print("\nMaximum step count reached.")
-
+        # Leave the finished maze visible briefly.
+        renderer.render(env.robot)
+        time.sleep(2)
     finally:
         # renderer.close()
         pass
