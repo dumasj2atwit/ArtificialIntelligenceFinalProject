@@ -3,12 +3,13 @@ import time
 from agents.q_learning_agent import QLearningAgent
 from environment.environment import MazeEnvironment
 from training.train_q_learning import train_q_learning
+from visualization.render import PyGameRenderer
 
 
 def run_learned_agent(
     agent: QLearningAgent,
     environment: MazeEnvironment,
-    # renderer: PyGameRenderer,
+    renderer: PyGameRenderer,
 ):
     agent.enviorment = environment
     environment.reset()
@@ -27,10 +28,10 @@ def run_learned_agent(
 
     while not done and steps < 500:
 
-        # if not renderer.process_events():
-        #     return
+        if not renderer.process_events():
+            return
 
-        # renderer.render(environment.robot)
+        renderer.render(environment.robot)
 
         action = agent.get_action(
             state,
@@ -58,7 +59,7 @@ def run_learned_agent(
 
         time.sleep(0.15)
 
-    # renderer.render(environment.robot)
+    renderer.render(environment.robot)
 
     print("\n===== Q-LEARNING RESULTS =====")
     print(f"Goal Reached: {done}")
@@ -88,12 +89,12 @@ def main():
     print("\nTraining complete.")
 
     environment = MazeEnvironment(maze_file)
-    # renderer = PyGameRenderer(environment.maze)
+    renderer = PyGameRenderer(environment.maze, environment.robot)
 
     run_learned_agent(
         agent,
         environment,
-        # renderer,
+        renderer,
     )
 
 
