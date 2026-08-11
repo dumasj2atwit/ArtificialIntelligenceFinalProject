@@ -2,7 +2,6 @@ import time
 
 from agents.fsm_agent import FSMAgent, FSMState
 from environment.environment import MazeEnvironment
-from visualization.pygame_renderer import PyGameRenderer
 
 
 def main() -> None:
